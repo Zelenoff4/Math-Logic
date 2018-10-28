@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+
 using namespace std;
 
 struct Node{
@@ -7,7 +8,6 @@ struct Node{
     string value = "";
 
 };
-
 vector<string> expressions, leftPrt, rightPrt;
 string axioms[10] = {"A->(B->A)", "(A->B)->(A->(B->C))->(A->C)","A->B->(A&B)", "(A&B)->A", "(A&B)->B", "A->(A|B)", "B->(A|B)", "(A->C)->(B->C)->((A|B)->C)", "(A->B)->(A->!B)->!A", "!!A->A"};
 string expression(string s);
@@ -31,6 +31,7 @@ bool isLit(string s){
     return true;
 }
 
+
 void exprToTree(string s, Node* tree){
     size_t i = 0;
     while (i < s.size()){
@@ -39,10 +40,13 @@ void exprToTree(string s, Node* tree){
             size_t firstComInd = 0, secondComInd = 0;
             tree->value = s[i];
             size_t j = i + 1;
+            //cout << "we're here" << endl;
             if (s[j] == '>'){
+                //tree->value += '>';
                 j += 1;
             }
             firstComInd = j;
+            //cout << "are we here?" << endl;
             for (size_t k = j + 1; k < s.size(); k++){
                 if (s[k] == '('){
                     balance += 1;
@@ -55,8 +59,12 @@ void exprToTree(string s, Node* tree){
                     break;
                 }
             }
+            //cout << "here?" << endl;
             tree->left = new Node();
             tree->right = new Node();
+            //cout << s << " <= curr string"  << endl;
+            //cout << firstComInd << " -first " << secondComInd << " -second " << endl;
+            //cout << s.substr(firstComInd + 1, secondComInd - firstComInd - 1) << " opacha " << s.substr(secondComInd + 1, s.length() - 2 - secondComInd) << endl;
             exprToTree(s.substr(firstComInd + 1, secondComInd - firstComInd - 1), tree->left);
             exprToTree(s.substr(secondComInd + 1, s.length() - 2 - secondComInd), tree->right);
             break;
@@ -66,6 +74,8 @@ void exprToTree(string s, Node* tree){
                 tree->value = s[i];
                 tree->right = nullptr;
                 tree->left = new Node();
+                //cout << s << " current string " << endl;
+                //cout << s.substr(i + 1, s.length() - 2 - i) << " negation here " << endl;
                 exprToTree(s.substr(i + 1, s.length() - 2 - i), tree->left);
                 break;
             }
@@ -81,6 +91,8 @@ void exprToTree(string s, Node* tree){
         i++;
     }
 }
+
+
 
 string negation(string s){
     int balance = 0;
@@ -118,7 +130,6 @@ string conjunction(string s){
     }
     return negation(s);
 }
-
 string disjunction(string s){
     int balance = 0;
     for (int i = s.length() - 1; i >= 0; i--){
@@ -151,6 +162,14 @@ string expression(string s){
     return disjunction(s);
 }
 
+/*void preposition(string c){
+        if (hypothesis.count(c) > 0){
+            cout << c << " (Preposition. " << i << ")" << endl;
+            return;
+        }
+    cout << c << " (Not stated)" << endl;
+}*/
+
 void makeAxTrees(){
     for (int i = 0; i < 10; i++){
         axTrees[i] = new Node();
@@ -177,13 +196,20 @@ bool checkTres(Node* r1, Node* r2){
 map<string, Node*> *saved;
 
 bool checkAx(Node* strTree, Node* axTree){
+    /*printTree(strTree);
+    cout << "strTree up there" << endl;
+    printTree(axTree);
+    cout << "axTree up there" << endl;*/
     if (axTree == nullptr && strTree == nullptr){
         return true;
     }
     if ((axTree == nullptr && strTree != nullptr) || (axTree != nullptr && strTree == nullptr)){
         return false;
     }
+    //cout << axTree->value << " here " << strTree->value << " " << endl;
     if (isLit(axTree->value)) {
+        //cout << "we're here" << saved->count(axTree->value) << endl;
+        //cout << "HERE????" << endl;
         if (saved->count(axTree->value) == 0){
             Node* tmp = new Node();
             tmp->value = strTree->value;
@@ -201,6 +227,7 @@ bool checkAx(Node* strTree, Node* axTree){
             tmp2->value = strTree->value;
             tmp2->left = strTree->left;
             tmp2->right = strTree->right;
+            //cout << tmp->value << " diz n diz " << tmp2->value << endl;
             return checkTres(tmp2, tmp);
         }
     }
@@ -229,9 +256,12 @@ void printTree(Node* tree){
     }
 }
 
+
+
+
 int main(){
-    freopen("in.txt", "r", stdin);
-    freopen("out.txt", "w", stdout);
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
     string first, wcurr;
     getline(cin, first);
     size_t i = 0;
@@ -253,6 +283,9 @@ int main(){
             if (wcurr[i] != '\t' && wcurr[i] != ' ')
             curr += wcurr[i];
         }
+	if (curr == ""){
+		continue;
+	}
         string exprView = expression(curr);
         expressions.push_back(exprView);
         size_t k = 0;
@@ -287,7 +320,7 @@ int main(){
             rightPrt.push_back("");
         }
         if (hypothesis.count(exprView) > 0){
-            cout << "(" << ++numeration << ") " << curr << " (Preposition. " << hypothesis[exprView] << ")" << endl;
+            cout << "(" << ++numeration << ") " << curr << " (Предп. " << hypothesis[exprView] << ")" << endl;
             continue;
         }
         Node* curTree = new Node();
@@ -295,18 +328,21 @@ int main(){
         for (size_t i = 0; i < 10; i++){
             saved = new map<string, Node*>;
             if (checkAx(curTree, axTrees[i])) {
-                cout << "(" << ++numeration << ") " << curr << " (Scheme numb " << i + 1 << ")" << endl;
+                cout << "(" << ++numeration << ") " << curr << " (Сх. акс. " << i + 1 << ")" << endl;
                 isAx = true;
-                break;
+                break; 
             }
         }
         if (isAx) {
             continue;
         }
+        //cout << curr << " current string" << endl;
         for (int i = rightPrt.size() - 2; i >= 0; i--){
+            //cout << "we're here, right part is" << rightPrt[i] << " searchin for " << exprView << endl;
             if (exprView == rightPrt[i]){
                 for (size_t j = 0; j < expressions.size() - 1; j++){
                     if (expressions[j] == leftPrt[i]){
+                        //pair<int, int> MPind = make_pair()
                         cout << "(" << ++numeration << ") " << curr << " (M.P. " << i + 1 << ", " << j + 1 << ")" << endl;
                         isMP = true;
                         break;
@@ -320,6 +356,19 @@ int main(){
         if (isMP){
             continue;
         }
-        cout << "(" << ++numeration << ") " << curr << " (Not stated)" << endl;
+        //cout << curr << " ";
+        cout << "(" << ++numeration << ") " << curr << " (Не доказано)" << endl;
+
+
     }
+
+    /*for (auto i : leftPrt){
+        cout << i << " ";
+    }
+
+    cout << endl << "left parts above" << endl;
+    cout << "right parts below" << endl;
+    for (auto i : rightPrt){
+        cout << i << " ";
+    }*/
 }

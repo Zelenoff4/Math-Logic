@@ -40,8 +40,9 @@ string conjunction(string s){
     }
     return negation(s);
 }
-
+//a->(a|b)
 string disjunction(string s){
+    //cout << s << " <= today im here with " << endl;
     int balance = 0;
     for (int i = s.length() - 1; i >= 0; i--){
         if (s[i] == '('){
@@ -67,14 +68,17 @@ string expression(string s){
             balance -= 1;
         }
         if (s[i] == '-' && balance == 0){
+            //cout << s.substr(0, i) << " opa " << s.substr(i + 2, s.length() - i - 2) << endl;
             return "(->," + disjunction(s.substr(0, i)) + "," + expression(s.substr(i + 2, s.length() - i - 2)) + ")";
         }
     }
+    //cout << "im goin in baby" << endl;
     return disjunction(s);
 }
 
 int main(){
     freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
     string s, ans = "", inp;
     while (getline(cin, inp)){
         s += inp;
