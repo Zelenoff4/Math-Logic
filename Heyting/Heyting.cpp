@@ -78,7 +78,6 @@ vector<int> genNextVector(vector<int> curVector){
 
 
 void exprToTree(string s, Node* tree){
-    //cout << s << " <= expression" << endl;
     size_t i = 0;
     while (i < s.size()){
         if (isBinaryOperation(s[i])) {
@@ -104,8 +103,6 @@ void exprToTree(string s, Node* tree){
             }
             tree->kids.push_back(new Node("left"));
             tree->kids.push_back(new Node("right"));
-            //tree->left = new Node();
-            //tree->right = new Node();
             exprToTree(s.substr(firstComInd + 1, secondComInd - firstComInd - 1), tree->kids[tree->kids.size() - 2]);
             exprToTree(s.substr(secondComInd + 1, s.length() - 2 - secondComInd), tree->kids[tree->kids.size() - 1]);
             break;
@@ -115,8 +112,6 @@ void exprToTree(string s, Node* tree){
                 tree->value = s[i];
                 tree->kids.push_back(new Node("left"));
                 tree->kids.push_back(nullptr);
-                //tree->right = nullptr;
-                //tree->left = new Node();
                 exprToTree(s.substr(i + 1, s.length() - 2 - i), tree->kids[tree->kids.size() - 2]);
                 break;
             }
@@ -128,8 +123,6 @@ void exprToTree(string s, Node* tree){
             tree->value = tmp;
             tree->kids.push_back(nullptr);
             tree->kids.push_back(nullptr);
-            //tree->left = nullptr;
-            //tree->right = nullptr;
             }
         i++;
     }
@@ -141,20 +134,11 @@ void printTree(Node* tree){
         cout << i << " ";
     }
     cout << " <- set of forced variables " << endl;
-    /*if (tree->left != nullptr){
-        cout << "=========Left child is below=======" << endl;
-        printTree(tree->left);
-    }
-    if (tree->right != nullptr){
-        cout << "=========Right child is below=======" << endl;
-        printTree(tree->right);
-    }*/
     for (auto i: tree->kids){
         if (i != nullptr){
             cout << tree->kids.size() << " =============Child is below=============" << endl;
             printTree(i);
         } else {
-            //cout << " nullptr " << endl;
         }
     }
     return;
@@ -249,12 +233,6 @@ void fromSetToVector(){
 
 void forceKid(Node* tree){
     tree->forced.insert(tree->parent->forced.begin(), tree->parent->forced.end());
-    /*if (tree->left != nullptr){
-        forceKid(tree->left);
-    }
-    if (tree->right != nullptr){
-        forceKid(tree->right);
-    }*/
     for (auto i: tree->kids){
         forceKid(i);
     }
@@ -264,48 +242,17 @@ void forceKid(Node* tree){
 void forcingVariables(Node* tree, vector<int> curNumbers){
     if (curNumbers[tree->number] != 0){
         tree->forced.insert(LettersVector[curNumbers[tree->number] - 1]);
-        /*if (tree->left != nullptr){
-            forceKid(tree->left);
-        }
-        if (tree->right != nullptr){
-            forceKid(tree->right);
-        }*/
         for (auto i: tree->kids){
             forceKid(i);
             forcingVariables(i, curNumbers);
         }
     }
-    /*if (tree->left != nullptr){
-        forcingVariables(tree->left, curNumbers);
-    }
-    if (tree->right != nullptr){
-        forcingVariables(tree->right, curNumbers);
-    }*/
-    //printTree(tree);
 }
 
 void forceOR(Node* tree, string left, string right){
-    /*for (auto i: tree->forced){
-        if (i == left || i == right){
-            tree->forced.insert(expression(left + '|' + right));
-            break;
-        }
-    }*/
-    /*for (auto i: tree->forced){
-        cout << i << " ";
-    }
-    cout << " <= SUP IS REDI" << endl;*/
     if (tree->forced.count(expression(left)) > 0 || tree->forced.count(expression(right)) > 0){
         tree->forced.insert(expression("(" + left + ")|(" + right + ")"));
     }
-    /*if (tree->left != nullptr){
-        forceKid(tree->left);
-        forceOR(tree->left, left, right);
-    }
-    if (tree->right != nullptr){
-        forceKid(tree->right);
-        forceOR(tree->right, left, right);
-    }*/
     for (auto i: tree->kids){
         forceKid(i);
         forceOR(i, left, right);
@@ -313,21 +260,9 @@ void forceOR(Node* tree, string left, string right){
 }
 
 void forceAND(Node* tree, string left, string right){
-    /*for (auto i: tree->forced){
-        cout << i << " ";
-    }
-    cout << " HI IGOR SUKA ITS ME VADIM" << endl;*/
     if (tree->forced.count(expression(left)) > 0 && tree->forced.count(expression(right)) > 0){
         tree->forced.insert(expression("(" + left + ")&(" + right + ")"));
     }
-    /*if (tree->left != nullptr){
-        forceKid(tree->left);
-        forceAND(tree->left, left, right);
-    }
-    if (tree->right != nullptr){
-        forceKid(tree->right);
-        forceAND(tree->right, left, right);
-    }*/
     for (auto i: tree->kids){
         forceKid(i);
         forceAND(i, left, right);
@@ -344,22 +279,6 @@ bool childForcedNot(Node* tree, string left){
             flagKids &= childForcedNot(i, left);
         }
         return flagKids;
-        /*if (tree->left != nullptr){
-            if (tree->right != nullptr){
-                return (childForcedNot(tree->left, left) && childForcedNot(tree->right, left));
-            }
-            else{
-                return childForcedNot(tree->left, left);
-            }
-        }
-        else{
-            if (tree->right != nullptr){
-                return childForcedNot(tree->right, left);
-            }
-            else {
-                return !(tree->forced.count(left) > 0);
-            }
-        }*/
     }
 
 }
@@ -375,71 +294,12 @@ bool childForcedImpl(Node* tree, string left, string right){
     else{
         return flagKids;
     }
-    /*if (tree->forced.count(expression(left))){
-        if (tree->forced.count(expression(right))){
-            bool flagKids = true;
-            for (auto i: tree->kids){
-                flagKids &= childForcedImpl(i, left, right);
-            }
-            return flagKids;
-            /*if (tree->left != nullptr){
-                if (tree->right != nullptr){
-                    return (childForcedImpl(tree->left, left, right) && childForcedImpl(tree->right, left, right));
-                }
-                else{
-                    return childForcedImpl(tree->left, left, right);
-                }
-            }
-            else {
-                if (tree->right != nullptr){
-                    return childForcedImpl(tree->right, left, right);
-                }
-                else{
-                    return true;
-                }
-            }
-        }
-        else {
-            return false;
-        }
-    }
-    else{
-        bool flagKids = true;
-        for (auto i: tree->kids){
-            flagKids &= childForcedImpl(i, left, right);
-        }
-        return flagKids;
-        /*if (tree->left != nullptr){
-            if (tree->right != nullptr){
-                return (childForcedImpl(tree->left, left, right) && childForcedImpl(tree->right, left, right));
-            }
-            else{
-                return childForcedImpl(tree->left, left, right);
-            }
-        }
-        else {
-            if (tree->right != nullptr){
-                return childForcedImpl(tree->right, left, right);
-            }
-            else{
-                return true;
-            }
-        }
-    }*/
 }
 
 void forceImpl(Node* tree, string left, string right){
     if (childForcedImpl(tree, left, right)){
         tree->forced.insert(expression("(" + left + ")->(" + right + ")"));
     }
-    /*if (tree->left != nullptr){
-        forceKid(tree->left);
-        forceImpl(tree->left, left, right);
-    }
-    if (tree->right != nullptr){
-        forceKid(tree->right);
-        forceImpl(tree->right, left, right);
-    }*/
     for (auto i: tree->kids){
         forceKid(i);
         forceImpl(i, left, right);
@@ -450,14 +310,6 @@ void forceNot(Node* tree, string left){
     if (childForcedNot(tree, left)){
         tree->forced.insert(expression("!(" + left + ")"));
     }
-    /*if (tree->left != nullptr){
-        forceKid(tree->left);
-        forceNot(tree->left, left);
-    }
-    if (tree->right != nullptr){
-        forceKid(tree->right);
-        forceNot(tree->right, left);
-    }*/
     for (auto i: tree->kids){
         forceKid(i);
         forceNot(i, left);
@@ -485,7 +337,6 @@ string leftNrightCheck(Node* tree, Node* worldTree){
 }
 
 void checkOperations(Node* formTree, Node* worldTree){
-    //cout << "tree->value at the beginning => " << formTree->value << endl;
     if (isBinaryOperation(formTree->value[0]) || formTree->value == "!"){
         string left = (leftNrightCheck(formTree->kids[formTree->kids.size() - 2], worldTree));
         string right = "";
@@ -495,7 +346,6 @@ void checkOperations(Node* formTree, Node* worldTree){
         if (formTree->value == "!"){
             left = "!(" + left + ")";
         }
-        //cout << left << " " << right << " <- left 'n right's are here and tree->value is there => " << formTree->value << endl;
         bool fLeft = false;
         bool fRight = false;
         int countLeft = 0;
@@ -505,24 +355,18 @@ void checkOperations(Node* formTree, Node* worldTree){
             left = left.substr(2, left.size() - 3);
             fLeft = true;
             countLeft++;
-            //cout << left << " <= left before going forceNot" << endl;
-            //forceNot(worldTree, left);
         }
         while (right[0] == '!'){
             right = right.substr(2, right.size() - 3);
             fRight = true;
             countRight++;
-            //cout << right << " <= right before going forceNot" << endl;
-            //forceNot(worldTree, right);
         }
         while (countLeft > 0){
-            //cout << left << " <= left before going forceNot" << endl;
             forceNot(worldTree, left);
             left = "!(" + left + ")";
             countLeft--;
         }
         while (countRight > 0){
-            //cout << right << " <= right before going forceNot" << endl;
             forceNot(worldTree, right);
             right = "!(" + right + ")";
             countRight--;
@@ -530,21 +374,15 @@ void checkOperations(Node* formTree, Node* worldTree){
 
 
         if (formTree->value[0] == '|'){
-            //cout << left << " " << right << " ISSUP REDI?" << endl;
             forceOR(worldTree, left, right);
         }
         else {
             if (formTree->value[0] == '&'){
-                //cout << "HI SUKA ITS ME IGOR " << left << " " << right << endl;
                 forceAND(worldTree, left, right);
             }
             else{
                 if (formTree->value[0] == '-'){
-                    //cout << "IS SUP READY " << left << " " << right << endl;
                     forceImpl(worldTree, left, right);
-                    /*cout << "----------------------------" << endl;
-                    printTree(worldTree);
-                    cout << "----------------------------" << endl;*/
                 }
             }
         }
@@ -595,47 +433,12 @@ void forceKids(Node* tree){
     }
 }
 
-/*bool isCorrectModel(Node* wannabe, Node* original, bool answer){
-    answer &= (wannabe->forced == original->forced);
-    answer &= (wannabe->kids.size() == original->kids.size());
-    if (!answer){
-        return false;
-    }
-    for (int i = 0; i < wannabe->kids.size(); i++){
-        answer &= isCorrectModel(wannabe->kids[i], original->kids[i], answer);
-    }
-    return answer;
-}
-
-bool oneSetInAnother(set<string> first, set<string> second){
-    for (auto i: first){
-        if (!(second.count(i) > 0)){
-            return false;
-        }
-    }
-    return true;
-}
-
-bool isCorrectModel(Node* wannabe, Node* original){
-    bool ans = true;
-    if (oneSetInAnother(wannabe->forced, original->forced) && oneSetInAnother(original->forced, wannabe->forced)){
-        for (int i = 0; i < wannabe->kids.size(); i++){
-            ans &= isCorrectModel(wannabe->kids[i], original->kids[i]);
-        }
-        return ans;
-    }
-    else {
-        return false;
-    }
-
-}*/
 
 bool comparator(Node* tree){
     if (tree->parent == nullptr){
         return true;
     }
     for (auto i: tree->parent->forced){
-        //cout << i << " <= current variable " << endl;
         if (!(tree->forced.count(expression(i)) > 0)){
             return false;
         }
@@ -660,14 +463,6 @@ bool isCorrectModel(Node* tree){
 
 void doBase(Node* tree){
     subtreesRoots.push_back(tree);
-    /*if (tree->left != nullptr){
-        //subtreesRoots.push_back(tree->left);
-        doBase(tree->left);
-    }
-    if (tree->right != nullptr){
-        //subtreesRoots.push_back(tree->right);
-        doBase(tree->right);
-    }*/
     for (auto i:tree->kids){
         doBase(i);
     }
@@ -675,12 +470,6 @@ void doBase(Node* tree){
 
 void getSubtreesVertexesNumbers(Node* tree){
     tempVertexes.insert(tree->number);
-    /*if (tree->left != nullptr){
-        getSubtreesVertexesNumbers(tree->left);
-    }
-    if (tree->right != nullptr){
-        getSubtreesVertexesNumbers(tree->right);
-    }*/
     for (auto i: tree->kids){
         getSubtreesVertexesNumbers(i);
     }
@@ -690,9 +479,6 @@ void makeSubtreesVertexes(){
     subtreesVertexes.resize(subtreesRoots.size());
     for (int i = 0; i < subtreesRoots.size(); i++){
         getSubtreesVertexesNumbers(subtreesRoots[i]);
-        /*for (int j = 0; j < tempVertexes.size(); j++){
-            subtreesVertexes[i].push_back(tempVertexes[j]);
-        }*/
         subtreesVertexes[i].insert(tempVertexes.begin(), tempVertexes.end());
         tempVertexes.clear();
     }
@@ -728,12 +514,6 @@ void vertexesWhereVariableIsForced(Node* tree, string variable, int index){
     if (tree->forced.count(expression(variable)) > 0){
         whereVariablesAreForced[index].insert(tree->number);
     }
-    /*if (tree->left != nullptr){
-        vertexesWhereVariableIsForced(tree->left, variable, index);
-    }
-    if (tree->right != nullptr){
-        vertexesWhereVariableIsForced(tree->right, variable, index);
-    }*/
     for (auto i: tree->kids){
         vertexesWhereVariableIsForced(i, variable, index);
     }
@@ -754,9 +534,7 @@ int main(){
     getline(cin, inp);
     first = noice(inp);
     string exprView = expression(first);
-    //cout << first << " " << exprView << endl;
     exprToTree(exprView, FormulaTree);
-    //printTree(FormulaTree);
     string rline;
     findUsedLetters(FormulaTree);
     fromSetToVector();
@@ -780,7 +558,6 @@ int main(){
         else {
             endOfTheRow = "";
         }
-        //cout << endOfTheRow << " <= endoftherow" << endl;
         j = 0;
         while (j < endOfTheRow.size()){
             string tmp = "";
@@ -788,19 +565,12 @@ int main(){
                 tmp += endOfTheRow[j];
                 j++;
             }
-            //cout << tmp << " HERE " << endl;
             vars.insert(expression(tmp));
             j++;
         }
         read.push_back(make_pair(starPos, vars));
     }
-    /*for (int i = 0; i < read.size(); i++){
-        cout << read[i].first << " ";
-        for (auto j: read[i].second){
-            cout << j << " ";
-        }
-        cout << endl;
-    }*/
+
     Node* current;
     for (int i = 0; i < read.size(); i++){    
         if (read[i].first == 0){
@@ -815,44 +585,18 @@ int main(){
         }
     }
 
-    /*for (int i = 0; i < kripke.size(); i++){
-        cout << "=====================NEW INPUTED TREE=====================" << endl;
-        printTree(kripke[i]);
-    }*/
 
     for (int i = 0; i < realKripke.size(); i++){
         for (auto j: realKripke[i]->kids){
             forceKids(j);
         }
     }
-    //cout << "KRIPKE TREES AFTER REALKRIPKE MAKING" << endl;
     for (int i = 0; i < kripke.size(); i++){
         enumerateVertexes(kripke[i]);
     }
-    //printTree(FormulaTree);
-
     
     
-    /*cout << "REALKRIPKE TREES" << endl;
-
     for (int i = 0; i < realKripke.size(); i++){
-        cout << "=====================NEW INPUTED TREE=====================" << endl;
-        //checkOperations(FormulaTree, realKripke[i]);
-        printTree(realKripke[i]);
-    }*/
-    
-
-    /*for (int i = 0; i < kripke.size(); i++){
-        cout << "=====================NEW INPUTED TREE=====================" << endl;
-        //checkOperations(FormulaTree, kripke[i]);
-        printTree(kripke[i]);
-    } */   
-
-
-
-
-    for (int i = 0; i < realKripke.size(); i++){
-        //if (!isCorrectModel(kripke[i], realKripke[i])){
         flag = false;
         if (!isCorrectModel(kripke[i])){
             cout << "Не модель Крипке" << endl;
@@ -862,7 +606,6 @@ int main(){
 
     for (int i = 0; i < kripke.size(); i++){
         checkOperations(FormulaTree, kripke[i]);
-        //checkOperations(FormulaTree, realKripke[i]);
     }
 
     for (int i = 0; i < realKripke.size(); i++){
@@ -885,21 +628,15 @@ int main(){
             massiveSubtreesVertexes.push_back(j);
         }
     }
-    //cout << massiveSubtreesVertexes.size() << endl;
+
     int n = massiveSubtreesVertexes.size();
-    /*for (int i = 0; i < n; i++){
-        cout << i + 1 << ": ";
-        for (auto j: massiveSubtreesVertexes[i]){
-            cout << j << " ";
-        }
-        cout << endl;
-    }*/
+
     vector<int> binVector;
     binVector.resize(n);
     for (int i = 0; i < n; i++){
         binVector[i] = 0;
     }
-    //cout << " hi " << endl;
+
     while (true){
         set<int> tmp;
         for (int j = 0; j < n; j++){
@@ -913,7 +650,7 @@ int main(){
             break;
         }
     }
-    //cout << "hello" << endl;
+
     set<int> emptySet;
     topology.insert(emptySet);
     vector<set<int>> vectorTopology;
@@ -938,9 +675,7 @@ int main(){
     }
 
     whereVariablesAreForced.resize(LettersVector.size());
-    /*for (int j = 0; j < LettersVector.size(); j++){
-        vertexesWhereVariableIsForced(kripke[i], LettersVector[j], j);
-    }*/
+
     for (int j = 0; j < LettersVector.size(); j++){
         for (int i = 0; i < kripke.size(); i++){
             vertexesWhereVariableIsForced(kripke[i], LettersVector[j], j);
