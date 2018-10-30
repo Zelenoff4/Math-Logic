@@ -234,7 +234,6 @@ int isMP(string s){
             for (size_t j = 0; j < expressions.size() - 1; j++){
                 if (expressions[j] == leftPrt[i]){
                     return j;
-                    //cout << "(" << ++numeration << ") " << curr << " (M.P. " << i + 1 << ", " << j + 1 << ")" << endl;
                 }
             }
         }
@@ -361,7 +360,6 @@ int main(){
         }
         if (deltas[i] == expression(alpha)) {
             answer.push_back(protAlpha + "->(" + protAlpha + "->" + protAlpha + ')');
-            //answer.push_back('(' + protAlpha + "->((" + protAlpha + "->" + protAlpha + ")->" + protAlpha + "))");
             answer.push_back('(' + protAlpha + "->(" + protAlpha + "->" + protAlpha + "))->(" + protAlpha + "->((" + protAlpha + "->" + protAlpha + ")->" + protAlpha + "))->(" + protAlpha + "->" + protAlpha + ')');
             answer.push_back('(' + protAlpha + "->((" + protAlpha + "->" + protAlpha + ")->" + protAlpha + "))->(" + protAlpha + "->" + protAlpha + ')');
             answer.push_back('(' + protAlpha + "->((" + protAlpha + "->" + protAlpha + ")->" + protAlpha + "))");
@@ -370,9 +368,6 @@ int main(){
         }
         int mp = isMP(deltas[i]);
         if (mp != -1){
-            /*answer.push_back('(' + protAlpha + "->" + normDeltas[mp] + ")->((" + protAlpha + "->(" + normDeltas[mp] + "->" + normDeltas[i] + "))->(" + protAlpha + "->" + normDeltas[i] + "))");
-            answer.push_back("((" + protAlpha + "->(" + normDeltas[mp] + "->" + normDeltas[i] + "))->(" + protAlpha + "->" + normDeltas[i] + "))");
-            answer.push_back(protAlpha + "->(" + normDeltas[i] + ')');*/
             answer.push_back('(' + protAlpha + "->(" + normDeltas[mp] + "))->((" + protAlpha + "->((" + normDeltas[mp] + ")->(" + normDeltas[i] + ")))->(" + protAlpha + "->(" + normDeltas[i] + ")))");
             answer.push_back("((" + protAlpha + "->((" + normDeltas[mp] + ")->(" + normDeltas[i] + ")))->(" + protAlpha + "->(" + normDeltas[i] + ")))");
             answer.push_back(protAlpha + "->(" + normDeltas[i] + ')');
