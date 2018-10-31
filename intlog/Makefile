@@ -1,6 +1,6 @@
 CXXFLAGS+=-std=c++14 -O2
 all:
-	g++ $(CXXFLAGS) hw5.cpp
+	g++ $(CXXFLAGS) intlog.cpp
 
 run:
 	./a.out
